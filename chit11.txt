@@ -1,0 +1,36 @@
+Trigger:
+create trigger t1
+    before update on student
+    for each row
+    begin
+    set new.total_marks=new.sub1_marks+new.sub2_marks+new.sub3_marks;
+    set new.percentage=((new.total_marks)/300)*100;
+    if new.percentage>80 then
+    set new.grade='A';
+    elseif new.percentage>=60 AND new.percentage<=80 then
+    set new.grade='B';
+    elseif new.percentage>=30 AND new.percentage<=59 then
+    set new.grade='C';
+    else
+    set new.grade='F';
+    end if;
+    end$
+
+Cursor:
+create procedure proc_stud()
+    begin
+    declare p_name varchar(20);
+    declare p_grade varchar(20);
+    declare p_finished int default 0;
+    declare c1 cursor for select name,grade from student;
+    declare continue handler for NOT FOUND set p_finished=1;
+    open c1;
+    get_stud:LOOP
+    fetch c1 into p_name,p_grade;
+    if p_finished=1 then
+    leave get_stud;
+    end if;
+    select p_name,p_grade;
+    END LOOP get_stud;
+    close c1;
+    end$

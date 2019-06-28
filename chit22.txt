@@ -1,0 +1,78 @@
+mysql> delimiter #
+mysql> drop trigger if exists t2;
+    -> create trigger t2 
+    -> before insert on student
+    -> for each row
+    -> begin
+    -> 
+    -> set NEW.sname=UPPER(NEW.sname);
+    -> set NEW.sname=TRIM(NEW.sname);
+    -> 
+    -> end#
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+
+mysql> delimiter ;
+mysql> insert into student values(07,'TESS',7,'ENTC',4);
+Query OK, 1 row affected (0.04 sec)
+
+mysql> select * from student;
++--------+---------+---------+--------+------+
+| prn_no | sname   | roll_no | branch | year |
++--------+---------+---------+--------+------+
+|      1 | SANKET  |       1 | IT     |    3 |
+|      2 | OMKAR   |       2 | CS     |    3 |
+|      3 | KIRAN   |       3 | MECH   |    4 |
+|      4 | NIKITA  |       4 | IT     |    2 |
+|      5 | KRANTI  |       5 | CS     |    4 |
+|      6 | DARIUS  |       6 | MECH   |    1 |
+|      7 | TESS    |       7 | ENTC   |    4 |
++--------+---------+---------+--------+------+
+7 rows in set (0.00 sec)
+
+mysql> insert into student values(  8,'   tessTrim',8,'IT',1);
+Query OK, 1 row affected (0.04 sec)
+
+mysql> select * from student;
++--------+----------+---------+--------+------+
+| prn_no | sname    | roll_no | branch | year |
++--------+----------+---------+--------+------+
+|      1 | SANKET   |       1 | IT     |    3 |
+|      2 | OMKAR    |       2 | CS     |    3 |
+|      3 | KIRAN    |       3 | MECH   |    4 |
+|      4 | NIKITA   |       4 | IT     |    2 |
+|      5 | KRANTI   |       5 | CS     |    3 |
+|      6 | DARIUS   |       6 | MECH   |    1 |
+|      7 | TESS     |       7 | ENTC   |    4 |
+|      8 | TESSTRIM |       8 | IT     |    1 |
++--------+----------+---------+--------+------+
+8 rows in set (0.00 sec)
+
+
+Part B:
+
+#create table new IF NOT EXISTS like student;
+
+mysql> delimiter //
+mysql> drop trigger if exists t3;
+    -> create trigger t3 
+    -> after insert on student
+    -> for each row
+    -> begin
+    -> insert into new SELECT NEW.prn_no, NEW.sname,NEW.roll_no, NEW.branch,NEW.year 
+    -> FROM student s where s.prn_no=NEW.prn_no ;
+    -> 
+    -> end//  
+Query OK, 0 rows affected (0.04 sec)
+
+
+mysql> insert into student values(4,'good',22,'IT',2)//
+Query OK, 1 row affected (0.05 sec)
+
+mysql> select * from new//
++--------+-------+---------+--------+------+
+| prn_no | sname | roll_no | branch | year |
++--------+-------+---------+--------+------+
+|      4 | GOOD  |      22 | IT     |    2 |
++--------+-------+---------+--------+------+
+1 row in set (0.00 sec)
